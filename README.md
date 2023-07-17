@@ -1,2 +1,2 @@
-# waarom-ext
-for educational purposes only
+# Waarom browser extension
+[sample](https://i.imgur.com/Nlgnapq.png)

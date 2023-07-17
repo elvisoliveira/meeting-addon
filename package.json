@@ -1,0 +1,25 @@
+{
+    "name": "waarom-ext",
+    "version": "1.0.0",
+    "description": "for educational purposes only",
+    "scripts": {
+        "webpack:build": "webpack --mode none",
+        "webpack:watch": "webpack --watch --mode none",
+        "lint": "eslint --ext .js . --fix"
+    },
+    "author": "Elvis Oliveira <elvis.olv@gmail.com>",
+    "license": "ISC",
+    "devDependencies": {
+        "copy-webpack-plugin": "^11.0.0",
+        "eslint-webpack-plugin": "^4.0.1",
+        "file-loader": "^6.2.0",
+        "sass": "^1.63.6",
+        "sass-loader": "^13.3.2",
+        "sharp": "^0.32.3",
+        "webpack": "^5.88.1",
+        "webpack-cli": "^5.1.4"
+    },
+    "dependencies": {
+        "pretty-print-json": "^2.0.2"
+    }
+}

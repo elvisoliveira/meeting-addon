@@ -1,0 +1,15 @@
+{
+    "manifest_version": 2,
+    "permissions": [
+        "tabs",
+        "https://wol.jw.org/*/wol/meetings/*"
+    ],
+    "content_scripts": [{
+        "matches": ["https://wol.jw.org/*/wol/meetings/*"],
+        "js": ["content.bundle.js"]
+    }],
+    "browser_action": {
+        "default_popup": "popup.html",
+        "browser_style": true
+    }
+}

@@ -1,4 +1,5 @@
 {
+    "name": "Waarom",
     "manifest_version": 2,
     "permissions": [
         "tabs",

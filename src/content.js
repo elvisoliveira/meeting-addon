@@ -14,7 +14,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             const part = getFormatted(parts[i].id);
             living_as_christians.push({
                 theme: part.label,
-                time: part.time
+                time: part.time,
+                speaker: ''
             });
         }
 

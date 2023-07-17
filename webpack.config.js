@@ -21,7 +21,6 @@ function copyPluginIconPatterns () {
 
 function modify(buffer) {
     let manifest = JSON.parse(buffer.toString());
-    manifest.name = package.name;
     manifest.version = package.version;
     manifest.description = package.description;
     ICON_SIZES.forEach((size) => {

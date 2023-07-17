@@ -10,12 +10,14 @@ window.addEventListener("load", () => {
             tabs.forEach((tab) => {
                 chrome.tabs.sendMessage(tab.id, { action: "getSource" }, (response) => {
                     elem.innerHTML = prettyPrintJson.toHtml(response, {
-                        indent: 2
+                        indent: 2,
+                        quoteKeys: true,
+                        trailingComma: false
                     });
                 });
             });
         } else {
-            document.body.innerHTML = 'You must be in the meetings page'
+            elem.innerHTML = '<span id="error">You must be in the meetings page</span>';
         }
     });
 }, false);

@@ -64,8 +64,9 @@ function getStudentObject(part) {
         label: part.label
     }
     if(part.advice) {
-        object['student'] = '';
-        object['assistant'] = '';
+        object.advice = part.advice;
+        object.student = '';
+        object.assistant = '';
     }
     return object;
 }

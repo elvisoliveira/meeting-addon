@@ -1,101 +1,103 @@
-const parts = document.querySelectorAll('p.so');
+const ref = [
+    {
+        icon: 'dc-icon--gem',
+        descr: 'Treasures from God’s Word',
+        acronym: 'tgw'
+    }, {
+        icon: 'dc-icon--wheat',
+        descr: 'Apply Yourself to the Field Ministry',
+        acronym: 'ayf'
+    }, {
+        icon: 'dc-icon--sheep',
+        descr: 'Living as Christians',
+        acronym: 'lac'
+    }
+];
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.action === 'getSource') {
-        const opening_talk = getText('p6');
-        const closing_song = Array.from(parts).pop();
+        const meetings = [];
 
-        const living_as_christians = [];
-        for (let i = 9; i < parts.length; i++) {
-            if(living_as_christians.length > 0) {
-                if(living_as_christians.reduce((n, {time}) => n + time, 0) == 15) {
-                    break;
-                }
-            }
-            const part = getFormatted(parts[i].id);
-            living_as_christians.push({
-                theme: part.label,
-                time: part.time,
-                speaker: ''
+        document.querySelectorAll('div.pub-mwb:not(:has(> div#f1))').forEach((meeting, i) => {
+            const data = {
+                date: getText(meeting, '[data-pid="1"]'),
+                theme: getText(meeting, '[data-pid="2"]'),
+                songs: []
+            };
+
+            Array.from(meeting.querySelectorAll('.dc-icon--music a')).forEach((song) => {
+                data.songs.push(getDigit(song.textContent));
             });
-        }
 
-        const initial_call = getFormatted('p14');
-        const return_visit = getFormatted('p15');
+            let section = null;
+            Array.from(meeting.querySelector('div.bodyTxt').querySelectorAll('div, h3')).forEach((item) => {
+                item.classList.forEach((name) => {
+                    if(ref.map((e) => e.icon).includes(name)) {
+                        section = ref[ref.findIndex(e => e.icon === name)].acronym;
+                        data[section] = [];
+                    }
+                });
 
-        const meeting = {
-            date: getText('p1'),
-            theme: getText('p2'),
-            chairman: '',
-            spiritual_gems: '',
-            opening_song: getNumber('p3'),
-            opening_talk: {
-                speaker: '',
-                theme: opening_talk.substring(0, opening_talk.indexOf(':'))
-            },
-            bible_reading: {
-                reader: '',
-                assignment: querySelector('p12', 'a.b')
-            },
-            initial_call: getStudentObject(initial_call),
-            return_visit: getStudentObject(return_visit),
-            middle_song: getNumber('p18'),
-            living_as_christians,
-            congregation_bible_study: {
-                conductor: '',
-                reader: ''
-            },
-            closing_song: getDigit(closing_song.textContent),
-            closing_prayer: ''
-        }
+                if(section && item.tagName === 'H3' && (/^\d+\./).test(item.textContent)) {
+                    const info = item.nextElementSibling.textContent.match(/\(([^()]*)\)/g);
+                    const title = item.textContent.match(/^(\d+)\.(.*)/);
+                    data[section].push({
+                        title: title.at(2).trim(),
+                        number: getDigit(title.at(1)),
+                        time: getDigit(info.shift())
+                    });
+                }
+            });
 
-        const studyOrTalk = getFormatted('p16');
-        const talk = /(.*)\s*\—\s*\w*\:\s*(.*)\s*$/g.exec(studyOrTalk.description);
-        meeting[talk ? 'talk' : 'bible_study'] = talk ? {
-            theme: talk[2].trim(),
-            student: ''
-        } : getStudentObject(studyOrTalk);
+            meetings.push({
+                date: data.date,
+                theme: data.theme,
+                chairman: '',
+                opening_song: data.songs[0],
+                opening_talk: {
+                    speaker: '',
+                    theme: data.tgw[0].title
+                },
+                spiritual_gems: '',
+                bible_reading: {
+                    number: 3,
+                    reader: ''
+                },
+                apply_yourself_to_the_field_ministry: data.ayf.map(elem => ({
+                    ...elem,
+                    speaker: '',
+                    assigned: '',
+                    assistant: ''
+                })),
+                middle_song: data.songs[1],
+                living_as_christians: data.lac.map(elem => ({ ...elem, speaker: '' })).slice(0, -1),
+                congregation_bible_study: {
+                    reader: '',
+                    conductor: ''
+                },
+                closing_song: data.songs[2],
+                closing_prayer: ''
+            });
+        });
 
-        sendResponse(meeting);
+        sendResponse(meetings);
     }
 });
 
-function getStudentObject(part) {
-    let object = {
-        label: part.label
-    }
-    if(part.advice) {
-        object.advice = part.advice;
-        object.student = '';
-        object.assistant = '';
-    }
-    return object;
+function querySelector(base, element, query) {
+    return getElement(base, element).querySelector(query).textContent
 }
 
-function getFormatted(element) {
-    const line = getText(element);
-    const match = /^(.*)\:\s*\((\d*).*?\)\s*(?:|(?:(.*)\((.*)\)(?!.*\1)|.*$))$/g.exec(line);
-    return {
-        label: match[1],
-        time: +match[2],
-        description: match[3],
-        advice: match[4]
-    }
+function getNumber(base, element) {
+    return getDigit(getText(base, element))
 }
 
-function querySelector(element, query) {
-    return getElementById(element).querySelector(query).textContent
+function getText(base, element) {
+    return getElement(base, element).textContent
 }
 
-function getNumber(element) {
-    return getDigit(getText(element))
-}
-
-function getText(element) {
-    return getElementById(element).textContent
-}
-
-function getElementById(id) {
-    return document.getElementById(id);
+function getElement(base, id) {
+    return (base || document).querySelector(id);
 }
 
 function getDigit(string) {

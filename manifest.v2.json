@@ -2,11 +2,13 @@
     "name": "Waarom",
     "manifest_version": 2,
     "permissions": [
-        "tabs",
-        "https://wol.jw.org/*/wol/meetings/*"
+        "tabs"
     ],
     "content_scripts": [{
-        "matches": ["https://wol.jw.org/*/wol/meetings/*"],
+        "matches": [
+            "https://wol.jw.org/*/wol/meetings/*",
+            "https://elvisoliveira.github.io/jwpub/"
+        ],
         "js": ["content.bundle.js"]
     }],
     "browser_action": {

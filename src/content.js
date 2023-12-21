@@ -1,14 +1,15 @@
-const ref = [
+const icon = (n) => `dc-icon--${n}`;
+const sections = [
     {
-        icon: 'dc-icon--gem',
+        icon: icon('gem'),
         descr: 'Treasures from God’s Word',
-        acronym: 'tgw'
+        acronym: 'tfgw'
     }, {
-        icon: 'dc-icon--wheat',
+        icon: icon('wheat'),
         descr: 'Apply Yourself to the Field Ministry',
-        acronym: 'ayf'
+        acronym: 'ayttfm'
     }, {
-        icon: 'dc-icon--sheep',
+        icon: icon('sheep'),
         descr: 'Living as Christians',
         acronym: 'lac'
     }
@@ -25,26 +26,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 songs: []
             };
 
-            Array.from(meeting.querySelectorAll('.dc-icon--music a')).forEach((song) => {
+            Array.from(meeting.querySelectorAll(`.${icon('music')} a`)).forEach((song) => {
                 data.songs.push(getDigit(song.textContent));
             });
 
             let section = null;
             Array.from(meeting.querySelector('div.bodyTxt').querySelectorAll('div, h3')).forEach((item) => {
                 item.classList.forEach((name) => {
-                    if(ref.map((e) => e.icon).includes(name)) {
-                        section = ref[ref.findIndex(e => e.icon === name)].acronym;
+                    if(sections.map((e) => e.icon).includes(name)) {
+                        section = sections[sections.findIndex(e => e.icon === name)].acronym;
                         data[section] = [];
                     }
                 });
 
                 if(section && item.tagName === 'H3' && (/^\d+\./).test(item.textContent)) {
-                    const info = item.nextElementSibling.textContent.match(/\(([^()]*)\)/g);
-                    const title = item.textContent.match(/^(\d+)\.(.*)/);
+                    const info = item.nextElementSibling.textContent.match(/\(([^()]*)\)/g); // Next element contains descr
+                    const title = item.textContent.match(/^(\d+)\.(.*)/); // Set part number apart
                     data[section].push({
+                        time: getDigit(info.at(0)),
                         title: title.at(2).trim(),
-                        number: getDigit(title.at(1)),
-                        time: getDigit(info.shift())
+                        number: getDigit(title.at(1))
                     });
                 }
             });
@@ -56,15 +57,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 opening_song: data.songs[0],
                 opening_talk: {
                     speaker: '',
-                    theme: data.tgw[0].title
+                    theme: data.tfgw[0].title
                 },
                 spiritual_gems: '',
                 bible_reading: {
-                    number: 3,
-                    reader: ''
+                    reader: '',
+                    assignment: '' // @TODO: Parse
                 },
-                apply_yourself_to_the_field_ministry: data.ayf.map(elem => ({
+                apply_yourself_to_the_field_ministry: data.ayttfm.map(elem => ({
                     ...elem,
+                    // @TODO: Figure out if it is a talk
                     speaker: '',
                     assigned: '',
                     assistant: ''
@@ -83,14 +85,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse(meetings);
     }
 });
-
-function querySelector(base, element, query) {
-    return getElement(base, element).querySelector(query).textContent
-}
-
-function getNumber(base, element) {
-    return getDigit(getText(base, element))
-}
 
 function getText(base, element) {
     return getElement(base, element).textContent

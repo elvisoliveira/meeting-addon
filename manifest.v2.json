@@ -2,7 +2,8 @@
     "name": "Waarom",
     "manifest_version": 2,
     "permissions": [
-        "tabs"
+        "tabs",
+        "storage"
     ],
     "content_scripts": [{
         "matches": [

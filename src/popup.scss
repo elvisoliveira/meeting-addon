@@ -16,15 +16,21 @@ body {
 
 pre#code {
     margin: 10px;
-    width: 300px;
+    width: 500px;
     max-height: 400px;
-    border: 1px solid black;
+    border: 1px solid #000;
     padding: 10px;
     overflow: auto;
-    background-color: #ccc;
+    background-color: #CCC;
     span#error {
         text-align: center;
         width: 100%;
         float: left;
     }
+}
+
+label {
+    padding: 10px;
+    border-top: 1px solid #000;
+    background-color: #CCC;
 }

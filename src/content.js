@@ -1,19 +1,9 @@
 const icon = (n) => `dc-icon--${n}`;
 const sections = [
-    {
-        icon: icon('gem'),
-        descr: 'Treasures from God’s Word',
-        acronym: 'tfgw'
-    }, {
-        icon: icon('wheat'),
-        descr: 'Apply Yourself to the Field Ministry',
-        acronym: 'ayttfm'
-    }, {
-        icon: icon('sheep'),
-        descr: 'Living as Christians',
-        acronym: 'lac'
-    }
-];
+    'gem', // Treasures from God’s Word
+    'wheat', // Apply Yourself to the Field Ministry
+    'sheep' // Living as Christians
+].reduce((previous, section) => ({ ...previous, [section]: icon(section)}), {});
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.action === 'getSource') {
@@ -34,8 +24,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             Array.from(meeting.querySelector('div.bodyTxt').querySelectorAll('div, h3')).forEach((item) => {
 
                 item.classList.forEach((name) => {
-                    if(sections.map((e) => e.icon).includes(name)) {
-                        section = sections[sections.findIndex(e => e.icon === name)].acronym;
+                    if(Object.values(sections).includes(name)) {
+                        section = Object.keys(sections).find(k => sections[k] === name);
                         data[section] = [];
                     }
                 });
@@ -74,6 +64,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             }
                         }
                     }
+
                     data[section].push(entry);
                 }
             });
@@ -82,13 +73,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 date: data.date,
                 theme: data.theme,
                 opening_song: data.songs[0],
-                opening_talk: data.tfgw[0],
-                spiritual_gems: data.tfgw[1],
-                bible_reading: data.tfgw[2],
-                apply_yourself_to_the_field_ministry: data.ayttfm,
+                opening_talk: data.gem[0],
+                spiritual_gems: data.gem[1],
+                bible_reading: data.gem[2],
+                apply_yourself_to_the_field_ministry: data.wheat,
                 middle_song: data.songs[1],
-                living_as_christians: data.lac.slice(0, -1),
-                congregation_bible_study: data.lac[data.lac.length - 1],
+                living_as_christians: data.sheep.slice(0, -1),
+                congregation_bible_study: data.sheep[data.sheep.length - 1],
                 closing_song: data.songs[2]
             });
         });

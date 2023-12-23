@@ -25,20 +25,26 @@ document.getElementById('empty').addEventListener('change', (e) => render(e.curr
 const render = (assignments) => {
     chrome.storage.local.get('meeting', (data) => {
         const { meeting } = data;
+        // @TODO: Improve this kludge
         if(assignments) {
-            for (var i = 0; i < meeting.length; i++) {
+            for (let i = 0; i < meeting.length; i++) {
                 meeting[i] = Object.assign({ chairman: '' }, meeting[i], { closing_prayer: '' });
-                meeting[i]['opening_talk']['speaker'] = '';
-                meeting[i]['spiritual_gems']['conductor'] = '';
-                meeting[i]['bible_reading']['reader'] = '';
-                meeting[i]['congregation_bible_study']['conductor'] = '';
-                meeting[i]['congregation_bible_study']['reader'] = '';
+                meeting[i].opening_talk.speaker = '';
+                meeting[i].spiritual_gems.conductor = '';
+                meeting[i].bible_reading.reader = '';
+                meeting[i].congregation_bible_study.conductor = '';
+                meeting[i].congregation_bible_study.reader = '';
+                meeting[i].apply_yourself_to_the_field_ministry.forEach((p, ii) => {
+                    meeting[i].apply_yourself_to_the_field_ministry[ii].assigned = '';
+                    if(!p.theme) {
+                        meeting[i].apply_yourself_to_the_field_ministry[ii].assistant = '';
+                    }
+                });
+                meeting[i].living_as_christians.forEach((p, ii) => {
+                    meeting[i].living_as_christians[ii].speaker = '';
+                });
             }
         }
-        // const empty = {
-        //     // apply_yourself_to_the_field_ministry: data.ayttfm.map(elem => ({ speaker: '', assigned: '', assistant: '' })),
-        //     // living_as_christians: data.lac.map(elem => ({ ...elem, /* speaker: '' */ })).slice(0, -1),
-        // };
         code.innerHTML = prettyPrintJson.toHtml(meeting, {
             indent: 2,
             quoteKeys: true,

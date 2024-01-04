@@ -4,12 +4,15 @@
     margin: 0;
     padding: 0;
 }
+
 html, body {
     height: 100%;
 }
+
 html {
     overflow: auto;
 }
+
 body {
     -moz-user-select: text;
 }
@@ -29,8 +32,12 @@ pre#code {
     }
 }
 
-label {
+div#form {
     padding: 10px;
     border-top: 1px solid #000;
     background-color: #CCC;
+}
+
+button#copy {
+    float: right;
 }

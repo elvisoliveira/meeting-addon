@@ -16,7 +16,7 @@ function copyPluginIconPatterns () {
             }
         }
     })
-    return res
+    return res;
 }
 
 function modify(buffer) {

@@ -48,10 +48,10 @@ jobs:
               const path = `./web-ext-artifacts/${name}`;
               const file = await fs.stat(path);
               await github.rest.repos.uploadReleaseAsset({
+                name,
                 repo: context.repo.repo,
                 owner: context.repo.owner,
                 release_id: release.data.id,
-                name: process.env.RELEASE_TAG,
                 data: await fs.readFile(path),
                 headers: {
                   "Content-Type": "application/x-xpinstall",

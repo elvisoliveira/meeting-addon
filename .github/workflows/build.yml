@@ -23,7 +23,7 @@ jobs:
           npm run webpack:build
           npm run deploy
       - name: Upload Artifact
-      - uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: firefox-signed
           path: ./web-ext-artifacts/*

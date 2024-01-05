@@ -3,12 +3,21 @@ name: build extension
 on:
   push:
 
+env:
+  JWT_ISSUER: ${{secrets.JWT_ISSUER}}
+  JWT_SECRET: ${{secrets.JWT_SECRET}}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: npm install and build
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         run: |
-          npm install
-          npm run build
+          npm clean install
+          npm run webpack:build
+          npm run deploy
+      - uses: actions/upload-artifact@v3
+        with:
+          name: firefox-signed
+          path: ./web-ext-artifacts/*

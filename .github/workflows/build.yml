@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v2
       - name: build and deploy
         run: |
-          npm clean install
+          npm i
           npm run webpack:build
           npm run deploy
       - uses: actions/upload-artifact@v3

@@ -45,15 +45,17 @@ jobs:
             });
             const fs = require('fs').promises;
             for (const name of await fs.readdir('./web-ext-artifacts/')) {
+              const path = `./web-ext-artifacts/${name}`;
+              const file = await fs.stat(path);
               await github.rest.repos.uploadReleaseAsset({
                 repo: context.repo.repo,
                 owner: context.repo.owner,
                 release_id: release.data.id,
                 name: process.env.RELEASE_TAG,
-                data: await fs.readFile(`./web-ext-artifacts/${name}`),
+                data: await fs.readFile(path),
                 headers: {
                   "Content-Type": "application/x-xpinstall",
-                  "Content-Length": fs.statSync(`./web-ext-artifacts/${name}`).size
+                  "Content-Length": file.size
                 }
               });
             }

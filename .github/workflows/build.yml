@@ -27,6 +27,8 @@ jobs:
         with:
           name: firefox-signed
           path: ./web-ext-artifacts/*
+      - name: Determine tag
+        run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
       - name: Create Release
         uses: actions/github-script@v6
         with:

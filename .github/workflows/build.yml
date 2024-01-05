@@ -34,29 +34,26 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-              const release = await github.rest.repos.createRelease({
-                draft: false,
-                generate_release_notes: true,
-                name: process.env.RELEASE_TAG,
-                owner: context.repo.owner,
-                prerelease: false,
+            const release = await github.rest.repos.createRelease({
+              draft: false,
+              generate_release_notes: true,
+              name: process.env.RELEASE_TAG,
+              owner: context.repo.owner,
+              prerelease: false,
+              repo: context.repo.repo,
+              tag_name: process.env.RELEASE_TAG,
+            });
+            const fs = require('fs').promises;
+            for (const name of await fs.readdir('./web-ext-artifacts/')) {
+              await github.rest.repos.uploadReleaseAsset({
                 repo: context.repo.repo,
-                tag_name: process.env.RELEASE_TAG,
+                owner: context.repo.owner,
+                release_id: release.data.id,
+                name: process.env.RELEASE_TAG,
+                data: await fs.readFile(`./web-ext-artifacts/${name}`),
+                headers: {
+                  "Content-Type": "application/x-xpinstall",
+                  "Content-Length": fs.statSync(`./web-ext-artifacts/${name}`).size
+                }
               });
-              const fs = require('fs').promises;
-              for (const name of await fs.readdir('./web-ext-artifacts/')) {
-                await github.rest.repos.uploadReleaseAsset({
-                  repo: context.repo.repo,
-                  owner: context.repo.owner,
-                  release_id: release.data.id,
-                  name: process.env.RELEASE_TAG,
-                  data: await fs.readFile(`./web-ext-artifacts/${name}`),
-                  headers: {
-                    "Content-Type": "application/x-xpinstall",
-                    "Content-Length": fs.statSync(`./web-ext-artifacts/${name}`).size
-                  }
-                });
-              }
-            } catch (error) {
-              core.setFailed(error.message);
             }

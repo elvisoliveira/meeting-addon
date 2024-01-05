@@ -1,0 +1,14 @@
+name: build extension
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: npm install and build
+        uses: actions/checkout@v2
+        run: |
+          npm install
+          npm run build

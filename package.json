@@ -1,11 +1,11 @@
 {
-    "name": "waarom-ext",
+    "name": "meetings-addon",
     "version": "1.0.0",
     "description": "for educational purposes only",
     "scripts": {
         "webpack:build": "webpack --mode production",
         "webpack:watch": "webpack --watch --mode none",
-        "deploy": "web-ext sign --disable-progress-bar --api-key=$JWT_ISSUER --api-secret=$JWT_SECRET --source-dir=./dist/",
+        "deploy": "web-ext sign --disable-progress-bar --api-key=$JWT_ISSUER --api-secret=$JWT_SECRET --id=$EXTENSION_ID --source-dir=./dist/",
         "lint": "eslint --ext .js . --fix"
     },
     "author": "Elvis Oliveira <elvis.olv@gmail.com>",

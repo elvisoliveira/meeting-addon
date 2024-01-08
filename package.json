@@ -1,6 +1,6 @@
 {
     "name": "meetings-addon",
-    "version": "1.0.14",
+    "version": "1.0.15",
     "description": "for educational purposes only",
     "scripts": {
         "webpack:build": "webpack --mode production",

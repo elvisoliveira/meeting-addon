@@ -18,6 +18,7 @@ jobs:
         env:
           JWT_ISSUER: ${{secrets.JWT_ISSUER}}
           JWT_SECRET: ${{secrets.JWT_SECRET}}
+          EXTENSION_ID: ${{vars.EXTENSION_ID}}
         run: |
           npm i
           npm run webpack:build

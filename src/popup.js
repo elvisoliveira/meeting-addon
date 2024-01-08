@@ -15,7 +15,7 @@ window.addEventListener('load', () => {
                 chrome.tabs.sendMessage(tab.id, { action: 'getSource' }, meeting => chrome.storage.local.set({ meeting }, () => render(false)));
             });
         } else {
-            code.innerHTML = '<span id="error">You must be in the meetings page</span>';
+            code.appendChild((new DOMParser().parseFromString('<span id="error">You must be in the meetings page</span>', 'text/html')).body);
         }
     });
 }, false);
@@ -27,10 +27,13 @@ document.getElementById('copy').addEventListener('click', () => navigator.clipbo
 const render = (assignments) => {
     chrome.storage.local.get('meeting', (data) => {
         const { meeting } = data;
-        code.innerHTML = prettyPrintJson.toHtml(assignments ? meeting.map(formatMeeting) : meeting, {
+        const json = prettyPrintJson.toHtml(assignments ? meeting.map(formatMeeting) : meeting, {
             indent: 2,
             quoteKeys: true,
             trailingComma: false
+        });
+        (new DOMParser().parseFromString(`<div>${json}</div>`, 'text/html')).body.childNodes.forEach((node) => {
+            code.replaceChildren(node);
         });
     });
 };

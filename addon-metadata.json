@@ -1,0 +1,27 @@
+{
+    "categories": {
+        "firefox": ["web-development"]
+    },
+    "contributions_url": "https://ko-fi.com/elvisoliveira",
+    "default_locale": "en-US",
+    "description": {
+        "en-US": "Check the source code on: https://github.com/elvisoliveira/meetings-addon/"
+    },
+    "developer_comments": {
+        "en-US": "Don't use, for educational purposes only"
+    },
+    "homepage": {
+        "en-US": "https://github.com/elvisoliveira/meetings-addon/"
+    },
+    "is_disabled": true,
+    "is_experimental": true,
+    "name": {
+        "en-US": "Meetings Addon"
+    },
+    "requires_payment": false,
+    "slug": "meetings-addon",
+    "summary": {
+        "en-US": "Extract the source materials of the Meeting Workbook from WOL"
+    },
+    "tags": ["download", "user scripts"]
+}

@@ -1,5 +1,6 @@
-const sharp = require('sharp');
-const package = require('./package.json');
+const Sharp = require('sharp');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const Config = require('./package.json');
 
 const CopyPlugin = require("copy-webpack-plugin");
 const ESLintPlugin = require('eslint-webpack-plugin');
@@ -12,7 +13,7 @@ function copyPluginIconPatterns () {
             from: 'icon.svg',
             to: `icon-${size}.png`,
             async transform (content) {
-                return sharp(content).resize(size).png().toBuffer()
+                return Sharp(content).resize(size).png().toBuffer()
             }
         }
     })
@@ -21,8 +22,13 @@ function copyPluginIconPatterns () {
 
 function modify(buffer) {
     let manifest = JSON.parse(buffer.toString());
-    manifest.version = package.version;
-    manifest.description = package.description;
+    manifest.version = Config.version;
+    manifest.description = Config.description;
+    manifest.browser_specific_settings = {
+        gecko: {
+            id: process.env.EXTENSION_ID || ""
+        }
+    }
     ICON_SIZES.forEach((size) => {
         let entry = {};
         entry[size] = `icon-${size}.png`;
@@ -37,6 +43,7 @@ module.exports = async function (env, argv) {
             style: './src/popup.scss'
         },
         output: {
+            path: require('path').resolve(process.cwd(), 'dist'),
             filename: "[name].bundle.js"
         },
         module: {
@@ -55,6 +62,7 @@ module.exports = async function (env, argv) {
             ]
         },
         plugins: [
+            new CleanWebpackPlugin(),
             new CopyPlugin({
                 patterns: [
                     { from: './src/popup.html' },

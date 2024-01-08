@@ -1,16 +1,17 @@
 {
-    "name": "waarom-ext",
-    "version": "1.0.0",
+    "name": "meetings-addon",
+    "version": "1.0.15",
     "description": "for educational purposes only",
     "scripts": {
         "webpack:build": "webpack --mode production",
         "webpack:watch": "webpack --watch --mode none",
-        "deploy": "web-ext sign --disable-progress-bar --api-key=$JWT_ISSUER --api-secret=$JWT_SECRET --source-dir=./dist/",
-        "lint": "eslint --ext .js . --fix"
+        "deploy": "web-ext sign --disable-progress-bar --use-submission-api --channel=unlisted --api-key=$JWT_ISSUER --api-secret=$JWT_SECRET --amo-metadata=./addon-metadata.json --source-dir=./dist/",
+        "lint": "eslint --ext .js . --fix & web-ext lint --source-dir ./dist/"
     },
     "author": "Elvis Oliveira <elvis.olv@gmail.com>",
     "license": "ISC",
     "devDependencies": {
+        "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^11.0.0",
         "crx3": "^1.1.3",
         "eslint-webpack-plugin": "^4.0.1",

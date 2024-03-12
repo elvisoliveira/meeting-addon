@@ -11,8 +11,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         document.querySelectorAll('div.pub-mwb:not(:has(> div#f1))').forEach((meeting) => {
             const data = {
-                date: getText(meeting, '[data-pid="1"]'),
-                theme: getText(meeting, '[data-pid="2"]'),
+                label: getText('[data-pid="1"]', meeting),
+                theme: getText('[data-pid="2"]', meeting),
                 songs: []
             };
 
@@ -57,6 +57,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             if(number === 3) { // number 3 is always bible reading, add assignment
                                 entry.assignment = hasLesson[1].trim();
                             } else {
+                                // @ TODO: "Explaining Your Beliefs" can be a talk or a demonstration find a way to distinguish them
                                 const isTalk = hasLesson[1].trim().match(/\—(?:[^]*)\:(.*)$/);
                                 if(isTalk) {
                                     entry.theme = isTalk[1].trim();
@@ -69,8 +70,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }
             });
 
-            meetings.push({
-                date: data.date,
+            meetings.push(Object.entries({
+                week: getElement('#todayWeek')?.value || null,
+                label: data.label,
                 theme: data.theme,
                 opening_song: data.songs[0],
                 opening_talk: data.gem[0],
@@ -81,19 +83,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 living_as_christians: data.sheep.slice(0, -1),
                 congregation_bible_study: data.sheep[data.sheep.length - 1],
                 closing_song: data.songs[2]
-            });
+            }).reduce((a,[k,v]) => (v === null ? a : (a[k] = v, a)), {}));
         });
 
         sendResponse(meetings);
     }
 });
 
-function getText(base, element) {
-    return getElement(base, element).textContent
+function getText(element, base) {
+    return getElement(element, base).textContent
 }
 
-function getElement(base, id) {
-    return (base || document).querySelector(id);
+function getElement(selector, base) {
+    return (base || document).querySelector(selector);
 }
 
 function getDigit(string) {

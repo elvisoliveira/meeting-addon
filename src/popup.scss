@@ -36,6 +36,10 @@ div#form {
     padding: 10px;
     border-top: 1px solid #000;
     background-color: #CCC;
+    display: none;
+    label {
+        float: left;
+    }
 }
 
 button#copy {

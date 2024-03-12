@@ -24,11 +24,12 @@ function modify(buffer) {
     let manifest = JSON.parse(buffer.toString());
     manifest.version = Config.version;
     manifest.description = Config.description;
-    manifest.browser_specific_settings = {
-        gecko: {
-            id: process.env.EXTENSION_ID || ""
+    if(process.env.EXTENSION_ID)
+        manifest.browser_specific_settings = {
+            gecko: {
+                id: process.env.EXTENSION_ID
+            }
         }
-    }
     ICON_SIZES.forEach((size) => {
         let entry = {};
         entry[size] = `icon-${size}.png`;

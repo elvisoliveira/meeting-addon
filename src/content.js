@@ -54,13 +54,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         const hasLesson = description.match(/([^]*)\(((?:lmd|th).*)\)$/);
                         if(hasLesson) {
                             entry.lesson = hasLesson[2].trim();
-                            if(number === 3) { // number 3 is always bible reading, add assignment
+                            if(number === 3) { // number 3 is always bible reading
                                 entry.assignment = hasLesson[1].trim();
                             } else {
-                                // @ TODO: "Explaining Your Beliefs" can be a talk or a demonstration find a way to distinguish them
-                                const isTalk = hasLesson[1].trim().match(/\—(?:[^]*)\:(.*)$/);
-                                if(isTalk) {
-                                    entry.theme = isTalk[1].trim();
+                                // "Explaining Your Beliefs" might be either a talk or a demonstration
+                                const isEYB = hasLesson[1].trim().match(/(^[^.]*).(?:.*)\—(?:[^]*)\: (.*)$/);
+                                // @TODO: Find out a way of differentiating without the usage of static strings
+                                if(isEYB && ['Talk', 'Discurso'].includes(isEYB[1])) {
+                                    entry.theme = isEYB[2].trim();
                                 }
                             }
                         }

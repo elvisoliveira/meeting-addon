@@ -16,8 +16,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 songs: []
             };
 
-            Array.from(meeting.querySelectorAll(`.${icon('music')} a`)).forEach((song) => {
-                data.songs.push(getDigit(song.textContent));
+            Array.from(meeting.querySelectorAll(`.${icon('music')} strong:first-child`)).forEach((song) => {
+                data.songs.push(getSong(song.textContent));
             });
 
             let section = null;
@@ -58,10 +58,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 entry.assignment = hasLesson[1].trim();
                             } else {
                                 // "Explaining Your Beliefs" might be either a talk or a demonstration
-                                const isEYB = hasLesson[1].trim().match(/(^[^.]*).(?:.*)\—(?:[^]*)\: (.*)$/);
-                                // @TODO: Find out a way of differentiating without the usage of static strings
-                                if(isEYB && ['Talk', 'Discurso'].includes(isEYB[1])) {
-                                    entry.theme = isEYB[2].trim();
+                                const isTalkOrEYB = hasLesson[1].trim().match(/(^[^.]*).(?:.*)\—(?:[^]*)\: (.*)$/);
+                                if(isTalk(entry.title) || (isTalkOrEYB && isTalk(isTalkOrEYB[1]))) {
+                                    entry.theme = isTalkOrEYB[2].trim();
                                 }
                             }
                         }
@@ -91,6 +90,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
+function isTalk(str) {
+    // @TODO: Find a better way of differentiating without the usage of static strings
+    return ['Talk', 'Discurso'].includes(str);
+}
+
 function getText(element, base) {
     return getElement(element, base).textContent
 }
@@ -100,5 +104,10 @@ function getElement(selector, base) {
 }
 
 function getDigit(string) {
-    return +string.replace(/\D/g, '')
+    return +string.replace(/\D/g, '');
+}
+
+function getSong(string) {
+    const n = getDigit(string);
+    return n >= 1 && n <= 158 ? n : '-';
 }

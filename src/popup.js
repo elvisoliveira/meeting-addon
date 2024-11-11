@@ -11,17 +11,16 @@ chrome.storage.local.get('show', (data) => {
 
 window.addEventListener('load', () => {
     chrome.tabs.query({
-        url: [
-            'https://wol.jw.org/*/wol/meetings/*',
-            'https://elvisoliveira.github.io/jwpub/'
-        ],
+        url: chrome.runtime.getManifest().content_scripts.flatMap(i => i.matches),
         active: true
     }, (tabs) => {
         if(tabs.length > 0) {
             tabs.forEach(tab => {
                 chrome.tabs.sendMessage(tab.id, {
                     action: 'getSource'
-                }, meeting => chrome.storage.local.set({ meeting }, () => render(show.checked)));
+                }, (meeting) => {
+                    chrome.storage.local.set({ meeting }, () => render(show.checked));
+                });
             });
         } else {
             code.appendChild((new DOMParser().parseFromString('<span id="error">You must be in the meetings page</span>', 'text/html')).body);
@@ -48,7 +47,7 @@ const render = (checked) => {
         const json = prettyPrintJson.toHtml(checked ? meeting.map(formatMeeting) : meeting, {
             indent: 2,
             quoteKeys: true,
-            trailingComma: false
+            trailingCommas: false
         });
         (new DOMParser().parseFromString(`<div>${json}</div>`, 'text/html')).body.childNodes.forEach((node) => {
             code.replaceChildren(node);

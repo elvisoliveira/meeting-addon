@@ -33,6 +33,11 @@ function copyPluginIconPatterns () {
 
 function makeManifest(manifestVersion) {
 
+    const domains = [
+        'https://wol.jw.org/*/wol/meetings/*',
+        'https://elvisoliveira.github.io/jwpub/'
+    ];
+
     const manifest = {};
     manifest.name = INFO.description;
     manifest.version = INFO.version;
@@ -40,11 +45,9 @@ function makeManifest(manifestVersion) {
     manifest.manifest_version = manifestVersion;
 
     manifest.content_scripts = [{
-        matches: [
-            'https://wol.jw.org/*/wol/meetings/*',
-            'https://elvisoliveira.github.io/jwpub/'
-        ],
-        js: ['content.bundle.js']
+        matches: domains,
+        js: ['content.bundle.js'],
+        ...(manifestVersion === 3 && { world: 'ISOLATED' })
     }];
 
     manifest[manifestVersion === 2 ? 'browser_action' : 'action'] = {

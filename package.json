@@ -6,7 +6,7 @@
     "scripts": {
         "webpack:build": "webpack --mode production",
         "webpack:watch": "webpack --watch --mode none",
-        "deploy": "web-ext sign --disable-progress-bar --use-submission-api --channel=unlisted --api-key=$JWT_ISSUER --api-secret=$JWT_SECRET --amo-metadata=./addon-metadata.json --source-dir=./dist/v2/",
+        "deploy:firefox": "web-ext sign --disable-progress-bar --use-submission-api --channel=unlisted --api-key=$JWT_ISSUER --api-secret=$JWT_SECRET --amo-metadata=./addon-metadata.json --source-dir=./dist/v2/",
         "lint": "eslint --ext .js . --fix & web-ext lint --source-dir ./dist/"
     },
     "author": "Elvis Oliveira <elvis.olv@gmail.com>",

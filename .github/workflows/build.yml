@@ -1,76 +1,151 @@
+# ----------------------------------------
+# Browser Extension Build & Release Workflow
+# ----------------------------------------
+# Purpose: Automates the build and release process for browser extensions
+# Triggers: On version tag pushes (v*)
+# Requirements:
+#   - Node.js
+#   - NPM dependencies
+#   - Firefox signing credentials
+#   - Extension signing keys
+# Outputs:
+#   - Signed extension artifacts
+#   - GitHub release with attached extensions
+# ----------------------------------------
+
 name: build extension
 
+# Triggers on version tags to automate release builds
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*' # Matches version tags like v1.0.0, v2.3.4-beta, etc.
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # Prevents hanging builds
+
     steps:
+      # Step 1: Source Control
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # Step 2: Development Environment Setup
       - name: Setup Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # Explicitly set Node.js version for consistency
+
+      # Step 3: Cache Dependencies
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 4: Security Credentials Setup
+      # Required for signing the extension
       - name: Key setup
         run: |
           echo "${{ secrets.PUBLIC_KEY }}" > ./keys/key.pub
           echo "${{ secrets.PRIVATE_KEY }}" > ./keys/key.pem
+
+      # Step 5: Install Dependencies and Build
+      # Installs required packages and builds the extension
+      - name: Install dependencies
+        run: npm ci  # Uses clean install for consistent builds
+
+      # Step 6: Build and Package
+      # Builds the extension and submits it to Firefox for signing
       - name: Build and Deploy
         env:
+          # Authentication credentials for JWT-based services
           JWT_ISSUER: ${{secrets.JWT_ISSUER}}
           JWT_SECRET: ${{secrets.JWT_SECRET}}
+          # Firefox extension identifier
           EXTENSION_ID: ${{vars.EXTENSION_ID}}
         run: |
-          npm i
           npm run webpack:build
-        npm run deploy:firefox
+          npm run deploy:firefox
+
+      # Step 7: Verify Build Artifacts
+      - name: Verify build artifacts
+        run: |
+          if [ ! -d "web-ext-artifacts" ]; then
+            echo "Build artifacts directory not found"
+            exit 1
+          fi
+
+      # Step 8: Artifact Preservation
+      # Stores the signed extension files for later use
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: firefox-signed
           path: ./web-ext-artifacts/*
+          retention-days: 5  # Keeps artifacts for 5 days
+
+      # Step 9: Release Tag Processing
+      # Extracts the version tag for release naming
       - name: Determine tag
         run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
+
+      # Step 10: GitHub Release Creation and Asset Upload
+      # Creates a new GitHub release and uploads built extensions
       - name: Create Release
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const release = await github.rest.repos.createRelease({
-              draft: false,
-              generate_release_notes: true,
-              name: process.env.RELEASE_TAG,
-              owner: context.repo.owner,
-              prerelease: false,
-              repo: context.repo.repo,
-              tag_name: process.env.RELEASE_TAG,
-            });
             const fs = require('fs').promises;
             const path = require('path');
-            const contentTypes = {
-                '.xml': 'text/xml',
-                '.crx': 'application/x-chrome-extension',
-                '.xpi': 'application/x-xpinstall'
-            }
-            require('glob')('{web-ext-artifacts,packages}/*.{xml,crx,xpi}', (err, res) => {
-              if (!err) {
-                res.forEach(async (filePath) => {
-                  const file = await fs.stat(filePath);
-                  const ext = path.extname(filePath);
-                  await github.rest.repos.uploadReleaseAsset({
-                    name: path.parse(filePath).base,
-                    repo: context.repo.repo,
-                    owner: context.repo.owner,
-                    release_id: release.data.id,
-                    data: await fs.readFile(filePath),
-                    headers: {
-                      "Content-Type": contentTypes[ext],
-                      "Content-Length": file.size
-                    }
-                  });
-                });
+            const glob = require('util').promisify(require('glob'));
+
+            try {
+              // Create a new GitHub release
+              const release = await github.rest.repos.createRelease({
+                draft: false,
+                generate_release_notes: true,
+                name: process.env.RELEASE_TAG,
+                owner: context.repo.owner,
+                prerelease: false,
+                repo: context.repo.repo,
+                tag_name: process.env.RELEASE_TAG,
+              });
+
+              // Define content types for different extension formats
+              const contentTypes = {
+                  '.xml': 'application/xml',
+                  '.crx': 'application/x-chrome-extension',
+                  '.xpi': 'application/x-xpinstall'
               }
-            });
+
+              // Find and upload all extension files
+              const files = await glob('{web-ext-artifacts,packages}/*.{xml,crx,xpi}');
+
+              for (const filePath of files) {
+                const file = await fs.stat(filePath);
+                const ext = path.extname(filePath);
+
+                // Upload each asset to the GitHub release
+                await github.rest.repos.uploadReleaseAsset({
+                  name: path.parse(filePath).base,
+                  repo: context.repo.repo,
+                  owner: context.repo.owner,
+                  release_id: release.data.id,
+                  data: await fs.readFile(filePath),
+                  headers: {
+                    "Content-Type": contentTypes[ext],
+                    "Content-Length": file.size
+                  }
+                });
+
+                console.log(`Successfully uploaded: ${filePath}`);
+              }
+            } catch (error) {
+              core.setFailed(`Error in release process: ${error.message}`);
+              throw error;
+            }

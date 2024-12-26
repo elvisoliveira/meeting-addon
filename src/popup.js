@@ -1,6 +1,6 @@
 import { prettyPrintJson } from 'pretty-print-json';
 
-const show = document.querySelector('[name="show"]');
+const show = document.getElementById('show');
 ['form', 'code', 'copy'].map(id => window[id] = document.getElementById(id));
 
 show.addEventListener('change', (e) => render(e.currentTarget.checked));

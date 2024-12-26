@@ -3,6 +3,7 @@
 * {
     margin: 0;
     padding: 0;
+    border: 0;
 }
 
 html, body {
@@ -41,8 +42,15 @@ div#form {
     float: left;
     width: 100%;
     box-sizing: border-box;
-    label {
+    border-top: 1px solid #000;
+    user-select: none;
+
+    fieldset, dd {
         float: left;
+    }
+
+    dt {
+      float: right;
     }
 }
 

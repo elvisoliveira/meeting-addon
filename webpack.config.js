@@ -93,8 +93,12 @@ function genConfig(argv, manifestVersion) {
                             options: {
                                 name: '[name].min.css'
                             }
-                        },
-                        'sass-loader'
+                        }, {
+                            loader: 'sass-loader',
+                            options: {
+                                api: "modern"
+                            }
+                        }
                     ]
                 }
             ]
